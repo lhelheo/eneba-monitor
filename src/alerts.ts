@@ -39,8 +39,11 @@ export function formatAlert(curr: PriceResult, reasons: string[]): string {
   return `🔔 ${curr.name}\n${money(curr.price, curr.currency)} — ${reasons.join("; ")}\n${productUrl(curr.slug)}`;
 }
 
-/** Envia para console + Telegram/Discord (os que estiverem configurados no .env). */
-export async function notify(message: string): Promise<void> {
+/**
+ * Envia para console + Telegram/Discord (os configurados no .env).
+ * Retorna quantos canais falharam (0 = todos enviaram ou nenhum canal configurado).
+ */
+export async function notify(message: string): Promise<number> {
   log.info("ALERTA\n" + message);
   const { telegramToken, telegramChatId, discordWebhook } = config.alerts;
   const jobs: Promise<unknown>[] = [];
@@ -68,7 +71,12 @@ export async function notify(message: string): Promise<void> {
     );
   }
 
+  let failures = 0;
   for (const result of await Promise.allSettled(jobs)) {
-    if (result.status === "rejected") log.warn(`Falha ao enviar alerta: ${result.reason}`);
+    if (result.status === "rejected") {
+      failures++;
+      log.warn(`Falha ao enviar alerta: ${result.reason}`);
+    }
   }
+  return failures;
 }

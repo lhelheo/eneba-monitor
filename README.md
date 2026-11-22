@@ -27,6 +27,7 @@ npm run cli -- history <slug>            # leituras anteriores
 npm run cli -- offers <slug>             # vendedores e preços agora
 npm run cli -- remove <slug>
 npm run cli -- once                      # uma verificação
+npm run cli -- test-alert                # envia mensagem de teste (Telegram/Discord)
 npm start                                # loop contínuo (Ctrl+C para parar)
 ```
 

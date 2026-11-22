@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
-import { money } from "./alerts.ts";
+import { money, notify } from "./alerts.ts";
+import { config } from "./config.ts";
 import { history, insertSnapshot, lastSnapshot, listProducts, lowestEver, removeProduct, upsertProduct } from "./db.ts";
 import { fetchOffers, productUrl, toSlug } from "./eneba/client.ts";
 import { log } from "./log.ts";
@@ -16,6 +17,7 @@ Monitor de preços Eneba
   npm run cli -- history <slug> [--limit 20]
   npm run cli -- offers <url|slug>       Lista os vendedores e preços agora
   npm run cli -- once                    Uma verificação de todos os produtos
+  npm run cli -- test-alert              Envia uma mensagem de teste pelos canais configurados
   npm start                              Loop contínuo (padrão: a cada 5 min)
 `;
 
@@ -117,6 +119,23 @@ async function main(): Promise<void> {
       const s = await checkOnce();
       log.info(`${s.checked} ok, ${s.failed} falha(s) em ${(s.durationMs / 1000).toFixed(1)}s`);
       if (s.failed > 0) process.exitCode = 1;
+      break;
+    }
+
+    case "test-alert": {
+      const { telegramToken, telegramChatId, discordWebhook } = config.alerts;
+      if (!((telegramToken && telegramChatId) || discordWebhook)) {
+        log.warn("Nenhum canal configurado. Preencha TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID ou DISCORD_WEBHOOK_URL no .env.");
+        process.exitCode = 1;
+        break;
+      }
+      const failures = await notify("🔔 Teste do Eneba Monitor: se você recebeu esta mensagem, os alertas estão funcionando.");
+      if (failures > 0) {
+        log.error(`${failures} canal(is) falharam. Confira o token, o chat ID e o webhook no .env.`);
+        process.exitCode = 1;
+      } else {
+        log.info("Teste enviado. Confira o Telegram/Discord.");
+      }
       break;
     }
 
