@@ -1,0 +1,32 @@
+# Uso na VPS (em /opt/eneba-monitor, com o arquivo .env já criado):
+#   docker compose build
+#   docker compose run --rm monitor node src/cli.ts once
+#   docker compose up -d
+#
+# O build usa o próprio repositório como contexto, então não é preciso enviar código à VPS.
+
+services:
+  monitor:
+    build: https://github.com/lhelheo/eneba-monitor.git
+    image: eneba-monitor:latest
+    container_name: eneba-monitor
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_PATH: /app/data/monitor.db
+    volumes:
+      - monitor-data:/app/data
+    # Não há portas publicadas: o monitor só faz requisições de saída.
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  monitor-data:
+    name: eneba-monitor-data

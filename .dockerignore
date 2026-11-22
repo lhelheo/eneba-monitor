@@ -1,0 +1,13 @@
+.git
+.gitignore
+.env
+.env.example
+data
+node_modules
+*.db
+*.db-*
+README.md
+PROJETO.md
+docker-compose.yml
+.dockerignore
+Dockerfile
