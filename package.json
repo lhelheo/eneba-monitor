@@ -1,0 +1,22 @@
+{
+  "name": "eneba-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Monitor de preços de produtos da Eneba (polling a cada ~5 min, alertas via Telegram/Discord)",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning src/cli.ts run",
+    "cli": "node --env-file-if-exists=.env --disable-warning=ExperimentalWarning src/cli.ts",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  }
+}
